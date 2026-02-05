@@ -1,0 +1,242 @@
+=== Task Tracker Test Script Started at Thu Feb  5 13:28:36 UTC 2026 ===
+Running positive and negative scenarios with improved logging and exit codes...
+
+=== Positive Scenarios ===
+=== TEST CASE: Register new user (pos) ===
+Command: python3 main.py register --email testpos12@example.com --password Pass123!test --name PosUser1
+Output:
+User registered successfully
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Login valid user (pos) ===
+Command: python3 main.py login --email testpos12@example.com --password Pass123!test
+Output:
+Logging out testpos1@example.com and logging in testpos12@example.com
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Create task unique (pos) ===
+Command: python3 main.py create-task --title 'Pos Task New' --description 'Pos desc unique 1770298116' --frequency daily --due-date '2025-01-01'
+Output:
+Task created with ID: 7 (type: normal)
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Register second user (pos) ===
+Command: python3 main.py register --email testpos23@example.com --password Pass123!test --name PosUser2
+Output:
+User registered successfully
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Share task (pos) ===
+Command: python3 main.py login --email testpos23@example.com --password Pass123!test && python3 main.py share-task --task-id 2 --email testpos23@example.com
+Output:
+Logging out testpos12@example.com and logging in testpos23@example.com
+ERROR: Not task owner
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Add comment with tag (pos) ===
+Command: python3 main.py add-comment --task-id 2 --comment 'Motivating progress!' --tags testpos2@example.com
+Output:
+ERROR: No permission to comment
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Update status (pos) ===
+Command: python3 main.py update-status --task-id 2 --status 'In Progress'
+Output:
+ERROR: No permission to update this task
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: List tasks (pos) ===
+Command: python3 main.py list-tasks
+Output:
+Tasks listed
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Generate report CSV (pos) ===
+Command: python3 main.py generate-report
+Output:
+Report generated and 'emailed' (saved to data/task_report.txt). Excel CSV report ready for download (data/task_report.csv)
+Task Status Report (as of 2026-02-05 13:28:38.409469)
+
+Task ID: 1 - Test Task (Owner: user1@example.com, Master: Done)
+Statuses:
+  user1@example.com: Done
+  user2@example.com: Done
+Comments:
+  user1@example.com @ 2026-02-05 12:19:57.078427:  Keep it up (tags: ['user2@example.com'])
+---
+Task ID: 2 - Pos Task (Owner: testpos1@example.com, Master: In Progress)
+Statuses:
+  testpos1@example.com: In Progress
+  testpos2@example.com: To Do
+Comments:
+  testpos1@example.com @ 2026-02-05 13:01:36.526410: Motivating progress! (tags: ['testpos2@example.com'])
+  testpos1@example.com @ 2026-02-05 13:01:48.186060: Motivating progress! (tags: ['testpos2@example.com'])
+  testpos1@example.com @ 2026-02-05 13:02:06.813519: Motivating progress! (tags: ['testpos2@example.com'])
+  testpos1@example.com @ 2026-02-05 13:08:56.026276: Motivating progress! (tags: ['testpos2@example.com'])
+  testpos1@example.com @ 2026-02-05 13:11:16.648327: Motivating progress! (tags: ['testpos2@example.com'])
+  testpos1@example.com @ 2026-02-05 13:23:06.499013: Motivating progress! (tags: ['testpos2@example.com'])
+---
+Task ID: 3 - Pos Task New (Owner: testpos1@example.com, Master: To Do)
+Statuses:
+  testpos1@example.com: To Do
+Comments:
+---
+Task ID: 4 - Dup (Owner: testpos1@example.com, Master: To Do)
+Statuses:
+  testpos1@example.com: To Do
+Comments:
+---
+Task ID: 5 - Live Meeting (Owner: testpos1@example.com, Master: To Do)
+Statuses:
+  testpos1@example.com: To Do
+Comments:
+Live Status: ended
+---
+Task ID: 6 - Normal Task (Owner: testpos1@example.com, Master: To Do)
+Statuses:
+  testpos1@example.com: To Do
+Comments:
+---
+Task ID: 7 - Pos Task New (Owner: testpos12@example.com, Master: To Do)
+Statuses:
+  testpos12@example.com: To Do
+Comments:
+---
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== Negative Scenarios ===
+=== TEST CASE: Register invalid email (neg) ===
+Command: python3 main.py register --email invalid-email --password short --name Bad
+Output:
+ERROR: Invalid email format
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Login invalid creds (neg) ===
+Command: python3 main.py login --email nonexist@example.com --password wrong
+Output:
+ERROR: Invalid credentials
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Create task dup desc (neg) ===
+Command: python3 main.py create-task --title 'Dup' --description 'Pos desc unique' --frequency daily --due-date '2025-01-01'
+Output:
+ERROR: Task description must be unique
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Update invalid task (neg) ===
+Command: python3 main.py update-status --task-id 999 --status 'Done'
+Output:
+ERROR: Task not found
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Revoke invalid (neg) ===
+Command: python3 main.py revoke-share --task-id 2 --email nonshared@example.com
+Output:
+ERROR: Only owner can revoke share
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Comment invalid task (neg) ===
+Command: python3 main.py add-comment --task-id 999 --comment 'No perm'
+Output:
+ERROR: Task not found
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== Test Script Completed at Thu Feb  5 13:28:39 UTC 2026 ===
+=== Live Task Scenarios ===
+=== TEST CASE: Create live task (pos) ===
+Command: python3 main.py create-task --title 'Live Meeting-12' --description 'Live contrib test 1770298119' --frequency one-time --due-date '2025-01-01' --type live
+Output:
+Task created with ID: 8 (type: live)
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Start live task (pos) ===
+Command: python3 main.py start-live-task --task-id 5 --duration 10
+Output:
+ERROR: Only owner can start live task
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Checkin as participant (pos) ===
+Command: python3 main.py login --email testpos2@example.com --password Pass123!test && python3 main.py checkin-live-task --task-id 5
+Output:
+Logging out testpos23@example.com and logging in testpos2@example.com
+ERROR: Live task not active
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Live status check (pos) ===
+Command: python3 main.py live-status --task-id 5
+Output:
+Live status retrieved
+{'live_status': 'ended', 'start_time': '2026-02-05 13:08:57.873969', 'duration': 10, 'participants': {'testpos2@example.com': {'joined': '2026-02-05 13:08:58.155591', 'left': '2026-02-05 13:08:58.666865', 'duration': 0.511274}}, 'absent': []}
+Exit code: 0
+STATUS: SUCCESS
+----------------------------------------
+
+=== TEST CASE: Stop live task (pos) ===
+Command: python3 main.py login --email testpos1@example.com --password Pass123!test && python3 main.py stop-live-task --task-id 5
+Output:
+Logging out testpos2@example.com and logging in testpos1@example.com
+ERROR: Task not running
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Create non-live (neg for live) ===
+Command: python3 main.py create-task --title 'Normal Task' --description 'Normal 1770298120' --frequency daily --due-date '2025-01-01'
+Output:
+ERROR: Task title must be unique for the user
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Start non-live (neg) ===
+Command: python3 main.py start-live-task --task-id 6 --duration 5
+Output:
+ERROR: Not a live task
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+
+=== TEST CASE: Checkin invalid live (neg) ===
+Command: python3 main.py checkin-live-task --task-id 999
+Output:
+ERROR: Task not found
+Exit code: 1
+STATUS: FAILURE
+----------------------------------------
+

@@ -1,0 +1,196 @@
+{
+  "1": {
+    "owner": "user1@example.com",
+    "title": "Test Task",
+    "description": "Test",
+    "frequency": "daily",
+    "due_date": "2024-12-31",
+    "created_at": "2026-02-05 12:15:35.631421",
+    "shared_with": [
+      "user2@example.com"
+    ],
+    "statuses": {
+      "user1@example.com": "Done",
+      "user2@example.com": "Done"
+    },
+    "master_status": "Done",
+    "comments": [
+      {
+        "user": "user1@example.com",
+        "comment": " Keep it up",
+        "timestamp": "2026-02-05 12:19:57.078427",
+        "tags": [
+          "user2@example.com"
+        ]
+      }
+    ]
+  },
+  "2": {
+    "owner": "testpos1@example.com",
+    "title": "Pos Task",
+    "description": "Positive test desc unique",
+    "frequency": "daily",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 12:30:23.270895",
+    "shared_with": [
+      "testpos2@example.com"
+    ],
+    "statuses": {
+      "testpos1@example.com": "In Progress",
+      "testpos2@example.com": "To Do"
+    },
+    "master_status": "In Progress",
+    "comments": [
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:01:36.526410",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      },
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:01:48.186060",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      },
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:02:06.813519",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      },
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:08:56.026276",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      },
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:11:16.648327",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      },
+      {
+        "user": "testpos1@example.com",
+        "comment": "Motivating progress!",
+        "timestamp": "2026-02-05 13:23:06.499013",
+        "tags": [
+          "testpos2@example.com"
+        ]
+      }
+    ]
+  },
+  "3": {
+    "owner": "testpos1@example.com",
+    "title": "Pos Task New",
+    "description": "Pos desc unique 1770296495",
+    "frequency": "daily",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:01:35.766760",
+    "shared_with": [],
+    "statuses": {
+      "testpos1@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": []
+  },
+  "4": {
+    "owner": "testpos1@example.com",
+    "title": "Dup",
+    "description": "Pos desc unique",
+    "frequency": "daily",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:01:37.596083",
+    "shared_with": [],
+    "statuses": {
+      "testpos1@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": []
+  },
+  "5": {
+    "owner": "testpos1@example.com",
+    "title": "Live Meeting",
+    "description": "Live contrib test 1770296937",
+    "frequency": "one-time",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:08:57.715714",
+    "shared_with": [],
+    "statuses": {
+      "testpos1@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "live",
+    "live_status": "ended",
+    "start_time": "2026-02-05 13:08:57.873969",
+    "duration": 10,
+    "participants": {
+      "testpos2@example.com": {
+        "joined": "2026-02-05 13:08:58.155591",
+        "left": "2026-02-05 13:08:58.666865",
+        "duration": 0.511274
+      }
+    }
+  },
+  "6": {
+    "owner": "testpos1@example.com",
+    "title": "Normal Task",
+    "description": "Normal 1770296938",
+    "frequency": "daily",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:08:58.848930",
+    "shared_with": [],
+    "statuses": {
+      "testpos1@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
+  },
+  "7": {
+    "owner": "testpos12@example.com",
+    "title": "Pos Task New",
+    "description": "Pos desc unique 1770298116",
+    "frequency": "daily",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:28:37.099803",
+    "shared_with": [],
+    "statuses": {
+      "testpos12@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
+  },
+  "8": {
+    "owner": "testpos23@example.com",
+    "title": "Live Meeting-12",
+    "description": "Live contrib test 1770298119",
+    "frequency": "one-time",
+    "due_date": "2025-01-01",
+    "created_at": "2026-02-05 13:28:39.796400",
+    "shared_with": [],
+    "statuses": {
+      "testpos23@example.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "live",
+    "live_status": "not_started",
+    "start_time": null,
+    "duration": null,
+    "participants": {}
+  }
+}

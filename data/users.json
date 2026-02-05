@@ -1,0 +1,32 @@
+{
+  "user1@example.com": {
+    "name": "UserOne",
+    "password_hash": "553400175fe6de0290f9c6a0e6b07dd5ee845bba94990530a65cc98ccccf3d85",
+    "registered_at": "2026-02-05 12:15:35.406551"
+  },
+  "user2@example.com": {
+    "name": "UserTwo",
+    "password_hash": "553400175fe6de0290f9c6a0e6b07dd5ee845bba94990530a65cc98ccccf3d85",
+    "registered_at": "2026-02-05 12:15:35.744439"
+  },
+  "testpos1@example.com": {
+    "name": "PosUser1",
+    "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
+    "registered_at": "2026-02-05 12:30:23.008913"
+  },
+  "testpos2@example.com": {
+    "name": "PosUser2",
+    "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
+    "registered_at": "2026-02-05 12:30:23.399555"
+  },
+  "testpos12@example.com": {
+    "name": "PosUser1",
+    "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
+    "registered_at": "2026-02-05 13:28:36.727246"
+  },
+  "testpos23@example.com": {
+    "name": "PosUser2",
+    "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
+    "registered_at": "2026-02-05 13:28:37.273754"
+  }
+}
