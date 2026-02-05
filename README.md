@@ -1,4 +1,4 @@
-# Zed Base - Shareable Task Tracker CLI
+# Shareable Task Tracker CLI
 
 ## Project Overview
 A CLI-based Shareable Task Tracker built in Python. Allows users to register, create recurring tasks, share them with others via email, update statuses, and view tasks.
@@ -59,7 +59,7 @@ A CLI-based Shareable Task Tracker built in Python. Allows users to register, cr
 - **Comments/Tags**: Motivate/challenge with @tags.
 - **Live Tasks**: Owner start (opt duration auto-end), shared checkin (participants track duration), status shows joined/in/left/absent.
 - **Master Status**: Dynamic (Done only all Done; In Progress if any; else To Do).
-- **Reporting**: Text + CSV (Excel-openable) status report (simulates weekly Mon 9AM IST email; use cron for scheduling).
+- **Reporting**: Text + CSV (Excel-openable) status report.
 - **Testing**: Bash script (test.sh) for pos/neg flows, logs (test.log) with exits/ERROR prefixes, preserves data.
 - **Storage**: Organized in data/ dir (JSON persistence, no deletes in tests).
 
