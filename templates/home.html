@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShareTask - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('ui_home') }}">ShareTask</a>
+            <div>
+                <a href="{{ url_for('ui_profile') }}" class="btn btn-outline-light me-2">Profile</a>
+                <!-- Report -->
+                <form method="POST" action="{{ url_for('ui_generate_report') }}" style="display:inline;">
+                    <button type="submit" class="btn btn-outline-light me-2">Generate Report</button>
+                </form>
+                <a href="{{ url_for('ui_logout') }}" class="btn btn-outline-light">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="d-flex justify-content-between mb-3">
+            <h2>Your Tasks</h2>
+            <a href="{{ url_for('ui_create_task') }}" class="btn btn-primary">Create New Task</a>
+        </div>
+        <div class="row">
+            {% for tid, task in tasks %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{{ task['title'] }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Owner:</strong> {{ task['owner'] }}</p>
+                        <p><strong>Frequency:</strong> {{ task['frequency'] }} | <strong>Due:</strong> {{ task['due_date'] }}</p>
+                        {% if task.get('task_type') == 'live' and task.get('live_status') == 'running' %}
+                        <p><strong>Live:</strong> <span id="timer-{{ tid }}" class="text-danger" data-start="{{ task.get('start_time') }}"></span></p>
+                        {% else %}
+                        <p><strong>Status:</strong> {{ task.get('master_status', 'To Do') }}</p>
+                        {% endif %}
+                        <p><strong>Type:</strong> {{ task.get('task_type', 'normal') }}</p>
+                        {% if task.get('description') %}
+                        <p class="text-muted">{{ task['description'][:100] }}...</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('ui_task_details', task_id=tid) }}" class="btn btn-info btn-sm">Details</a>
+                        {% if task.get('task_type') != 'live' %}
+                        <!-- Update status from home (non-live only) -->
+                        <form method="POST" action="{{ url_for('ui_update_status_home', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                <option value="To Do" {% if task.get('statuses', {}).get(user_email) == 'To Do' %}selected{% endif %}>To Do</option>
+                                <option value="In Progress" {% if task.get('statuses', {}).get(user_email) == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Done" {% if task.get('statuses', {}).get(user_email) == 'Done' %}selected{% endif %}>Done</option>
+                            </select>
+                        </form>
+                        {% endif %}
+                        {% if task['owner'] == user_email %}
+                        <form method="POST" action="{{ url_for('ui_delete_task', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</button>
+                        </form>
+                        {% if task.get('task_type') == 'live' and task.get('live_status') == 'running' %}
+                        <form method="POST" action="{{ url_for('ui_stop_live_home', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Stop live task?')">Stop Live</button>
+                        </form>
+                        {% endif %}
+                        {% endif %}
+                        <!-- Live join/leave if applicable -->
+                        {% if task.get('task_type') == 'live' and task.get('live_status') == 'running' %}
+                        {% if user_email in task.get('participants', {}) %}
+                        <form method="POST" action="{{ url_for('ui_leave_live', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <button type="submit" class="btn btn-secondary btn-sm">Leave</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('ui_join_live', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <button type="submit" class="btn btn-success btn-sm">Join</button>
+                        </form>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if not tasks %}
+        <p>No tasks found. Create one above.</p>
+        {% endif %}
+    </div>
+    <script>
+        function updateLiveTimers() {
+            document.querySelectorAll('[id^="timer-"]').forEach(function(el) {
+                const startStr = el.getAttribute('data-start');
+                if (startStr) {
+                    const start = new Date(startStr);
+                    let elapsed = Math.floor((Date.now() - start) / 1000);
+                    const h = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+                    const s = (elapsed % 60).toString().padStart(2, '0');
+                    el.textContent = `${h}:${m}:${s}`;
+                }
+            });
+        }
+        setInterval(updateLiveTimers, 1000);
+        updateLiveTimers();
+    </script>
+</body>
+</html>

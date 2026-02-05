@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 import csv
 import time
 
-def create_task(title, description, frequency, due_date, task_type='normal'):
-    current_email = get_current_user()
+def create_task(title, description, frequency, due_date, task_type='normal', user_email=None, start_time=None, duration=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -14,7 +14,7 @@ def create_task(title, description, frequency, due_date, task_type='normal'):
     for t in tasks.values():
         if t.get('owner') == current_email and t.get('title') == title:
             return False, "Task title must be unique for the user"
-    task_id = str(len(tasks) + 1)
+    task_id = str(max([int(k) for k in tasks.keys()] or [0]) + 1)
     task_data = {
         'owner': current_email,
         'title': title,
@@ -30,15 +30,16 @@ def create_task(title, description, frequency, due_date, task_type='normal'):
     }
     if task_type == 'live':
         task_data['live_status'] = 'not_started'
-        task_data['start_time'] = None
-        task_data['duration'] = None  # minutes optional
+        task_data['start_time'] = start_time  # iso for preconfig
+        task_data['duration'] = duration  # mins, 0=indef
         task_data['participants'] = {}  # email: {'joined': ts, 'left': ts or None, 'duration': secs}
+        task_data['live_mode'] = 'preconfigured' if start_time else 'dynamic'
     tasks[task_id] = task_data
     save_data(TASKS_FILE, tasks)
-    return True, f"Task created with ID: {task_id} (type: {task_type})"
+    return True, f"Task created: {title} (type: {task_type})"
 
-def share_task(task_id, share_email):
-    current_email = get_current_user()
+def share_task(task_id, share_email, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -56,8 +57,8 @@ def share_task(task_id, share_email):
         save_data(TASKS_FILE, tasks)
     return True, f"Task shared with {share_email}"
 
-def update_task_status(task_id, status):
-    current_email = get_current_user()
+def update_task_status(task_id, status, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -79,8 +80,8 @@ def update_task_status(task_id, status):
     save_data(TASKS_FILE, tasks)
     return True, "Status updated"
 
-def add_comment(task_id, comment, tags=None):
-    current_email = get_current_user()
+def add_comment(task_id, comment, tags=None, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -100,8 +101,8 @@ def add_comment(task_id, comment, tags=None):
     save_data(TASKS_FILE, tasks)
     return True, "Comment added"
 
-def revoke_share(task_id, revoke_email):
-    current_email = get_current_user()
+def revoke_share(task_id, revoke_email, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -118,8 +119,8 @@ def revoke_share(task_id, revoke_email):
     save_data(TASKS_FILE, tasks)
     return True, f"Share revoked from {revoke_email}"
 
-def start_live_task(task_id, duration=None):
-    current_email = get_current_user()
+def start_live_task(task_id, duration=None, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -135,11 +136,17 @@ def start_live_task(task_id, duration=None):
     task['live_status'] = 'running'
     task['start_time'] = str(datetime.now())
     task['duration'] = duration  # minutes
+    # auto join owner for dynamic/pre
+    task.setdefault('participants', {})[current_email] = {
+        'joined': task['start_time'],
+        'left': None,
+        'duration': 0
+    }
     save_data(TASKS_FILE, tasks)
     return True, f"Live task started (duration: {duration} mins if set)"
 
-def stop_live_task(task_id):
-    current_email = get_current_user()
+def stop_live_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -162,8 +169,8 @@ def stop_live_task(task_id):
     save_data(TASKS_FILE, tasks)
     return True, "Live task stopped"
 
-def checkin_live_task(task_id):
-    current_email = get_current_user()
+def checkin_live_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
     tasks = load_data(TASKS_FILE)
@@ -183,8 +190,29 @@ def checkin_live_task(task_id):
     save_data(TASKS_FILE, tasks)
     return True, f"Checked in to live task as participant"
 
-def get_live_status(task_id):
-    current_email = get_current_user()
+def leave_live_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return False, "Please login first"
+    tasks = load_data(TASKS_FILE)
+    if task_id not in tasks:
+        return False, "Task not found"
+    task = tasks[task_id]
+    if task.get('task_type') != 'live' or task['live_status'] != 'running':
+        return False, "Live task not active"
+    if current_email not in task.get('participants', {}):
+        return False, "Not participating"
+    now = datetime.now()
+    p = task['participants'][current_email]
+    if p['left'] is None:
+        joined = datetime.fromisoformat(p['joined'])
+        p['left'] = str(now)
+        p['duration'] = (now - joined).total_seconds()
+    save_data(TASKS_FILE, tasks)
+    return True, f"Left live task (duration: {int(p['duration'])} secs)"
+
+def get_live_status(task_id, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first", {}
     tasks = load_data(TASKS_FILE)
@@ -193,8 +221,20 @@ def get_live_status(task_id):
     task = tasks[task_id]
     if task.get('task_type') != 'live':
         return False, "Not a live task", {}
+    # Auto-start for preconfigured if time passed
+    if task.get('live_mode') == 'preconfigured' and task.get('start_time') and task['live_status'] == 'not_started':
+        start = datetime.fromisoformat(task['start_time'])
+        if datetime.now() >= start:
+            task['live_status'] = 'running'
+            # auto join owner
+            task.setdefault('participants', {})[task['owner']] = {
+                'joined': str(datetime.now()),
+                'left': None,
+                'duration': 0
+            }
+            save_data(TASKS_FILE, tasks)
     # Auto-end if duration exceeded
-    if task['live_status'] == 'running' and task['duration'] is not None and task['start_time']:
+    if task['live_status'] == 'running' and task['duration'] is not None and task['start_time'] and task['duration'] > 0:
         start = datetime.fromisoformat(task['start_time'])
         elapsed = (datetime.now() - start).total_seconds() / 60
         if elapsed > task['duration']:
@@ -216,40 +256,75 @@ def get_live_status(task_id):
     }
     return True, "Live status retrieved", status
 
-def list_tasks(show_shared=False):
-    current_email = get_current_user()
+def list_tasks(show_shared=False, user_email=None):
+    current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first", []
     tasks = load_data(TASKS_FILE)
     user_tasks = []
     for tid, task in tasks.items():
         if task['owner'] == current_email or current_email in task.get('shared_with', []):
+            # trigger auto for live (pre/start/end)
+            if task.get('task_type') == 'live':
+                if task.get('live_mode') == 'preconfigured' and task.get('start_time') and task.get('live_status') == 'not_started':
+                    start = datetime.fromisoformat(task['start_time'])
+                    if datetime.now() >= start:
+                        task['live_status'] = 'running'
+                        task.setdefault('participants', {})[task['owner']] = {'joined': str(datetime.now()), 'left': None, 'duration': 0}
+                if task['live_status'] == 'running' and task['duration'] is not None and task['start_time'] and task['duration'] > 0:
+                    start = datetime.fromisoformat(task['start_time'])
+                    elapsed = (datetime.now() - start).total_seconds() / 60
+                    if elapsed > task['duration']:
+                        task['live_status'] = 'ended'
+                        now = datetime.now()
+                        for email, p in task.get('participants', {}).items():
+                            if p['left'] is None:
+                                joined = datetime.fromisoformat(p['joined'])
+                                p['left'] = str(now)
+                                p['duration'] = (now - joined).total_seconds()
+                save_data(TASKS_FILE, tasks)
             user_tasks.append((tid, task))
     return True, "Tasks listed", user_tasks
 
-def generate_report():
+def generate_report(user_email=None):
     tasks = load_data(TASKS_FILE)
     report = "Task Status Report (as of " + str(datetime.now()) + ")\n\n"
+    filtered_tasks = {}
     for tid, task in tasks.items():
-        report += f"Task ID: {tid} - {task['title']} (Owner: {task['owner']}, Master: {task.get('master_status', 'To Do')})\n"
-        report += "Statuses:\n"
-        for user, stat in task['statuses'].items():
-            report += f"  {user}: {stat}\n"
-        report += "Comments:\n"
-        for c in task.get('comments', []):
-            report += f"  {c['user']} @ {c['timestamp']}: {c['comment']} (tags: {c.get('tags', [])})\n"
-        if task.get('task_type') == 'live':
-            report += f"Live Status: {task.get('live_status')}\n"
-        report += "---\n"
+        if user_email is None or task['owner'] == user_email or user_email in task.get('shared_with', []):
+            filtered_tasks[tid] = task
+            report += f"Task ID: {tid} - {task['title']} (Owner: {task['owner']}, Master: {task.get('master_status', 'To Do')})\n"
+            report += "Statuses:\n"
+            for user, stat in task['statuses'].items():
+                report += f"  {user}: {stat}\n"
+            report += "Comments:\n"
+            for c in task.get('comments', []):
+                report += f"  {c['user']} @ {c['timestamp']}: {c['comment']} (tags: {c.get('tags', [])})\n"
+            if task.get('task_type') == 'live':
+                report += f"Live Status: {task.get('live_status')}\n"
+            report += "---\n"
     with open('data/task_report.txt', 'w') as f:
         f.write(report)
     with open('data/task_report.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['Task ID', 'Title', 'Owner', 'Master Status', 'User', 'User Status', 'Comments', 'Live Status'])
-        for tid, task in tasks.items():
+        for tid, task in filtered_tasks.items():
             live_stat = task.get('live_status', '')
             for user, stat in task['statuses'].items():
                 comments_str = '; '.join([f"{c['user']}: {c['comment']}" for c in task.get('comments', [])])
                 writer.writerow([tid, task['title'], task['owner'], task.get('master_status', 'To Do'), user, stat, comments_str, live_stat])
     print("Report generated and 'emailed' (saved to data/task_report.txt). Excel CSV report ready for download (data/task_report.csv)")
     return True, report
+
+def delete_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return False, "Please login first"
+    tasks = load_data(TASKS_FILE)
+    if task_id not in tasks:
+        return False, "Task not found"
+    if tasks[task_id]['owner'] != current_email:
+        return False, "Only owner can delete task"
+    del tasks[task_id]
+    save_data(TASKS_FILE, tasks)
+    return True, "Task deleted"

@@ -17,15 +17,18 @@ def register_user(email, password, name):
     save_data(USERS_FILE, users)
     return True, "User registered successfully"
 
-def login_user(email, password):
+def login_user(email, password, set_session=True):
     users = load_data(USERS_FILE)
     if email in users and users[email]['password_hash'] == hash_password(password):
-        current = get_current_user()
-        if current and current != email:
-            msg = f"Logging out {current} and logging in {email}"
+        if set_session:
+            current = get_current_user()
+            if current and current != email:
+                msg = f"Logging out {current} and logging in {email}"
+            else:
+                msg = "Login successful"
+            set_current_user(email)
         else:
             msg = "Login successful"
-        set_current_user(email)
         return True, msg
     return False, "Invalid credentials"
 

@@ -65,14 +65,15 @@ A CLI-based Shareable Task Tracker built in Python. Allows users to register, cr
 
 ## Project Structure
 ```
-zed-base/
 ├── README.md
 ├── main.py              # CLI entry with argparse
+├── app.py               # Flask backend + UI server (APIs + templates)
+├── templates/           # HTML UI screens (login, home, etc.)
 ├── test.sh              # Bash E2E test script (pos/neg, logs; preserves data)
 ├── src/                 # Core modules
 │   ├── __init__.py
 │   ├── user.py          # Register/login/validation
-│   ├── task.py          # Tasks, live, comments, reports
+│   ├── task.py          # Tasks, live, comments, reports (+delete)
 │   └── utils.py         # Data I/O, hash, validators
 ├── data/                # Organized storage (moved from root)
 │   ├── users.json       # Users data
@@ -81,7 +82,7 @@ zed-base/
 │   ├── task_report.txt  # Text report
 │   └── task_report.csv  # Excel-compatible CSV report
 ├── tests/               # (placeholder for future unit tests)
-└── requirements.txt     # (empty, stdlib only)
+└── requirements.txt     # Flask + stdlib
 ```
 
 ## Future Plan
@@ -89,8 +90,18 @@ zed-base/
 - Migrate to SQLite DB for better concurrency/scalability.
 - Enhance auth (bcrypt, JWT sessions).
 - Real SMTP email integration.
-- Web/GUI frontend (Flask/Django).
 - Unit tests (pytest), CI/CD.
 - Docker/containerization for deployment.
+
+## Running the Application
+### Backend + Frontend
+1. Install deps: `pip install -r requirements.txt` (uses Flask)
+2. Start server: `python3 app.py` (runs on http://127.0.0.1:5000)
+   - Serves REST APIs at /api/ + UI screens (/login, /home, /profile, etc.)
+3. Access UI in browser: http://127.0.0.1:5000
+   - Signup/login -> Home lists tasks -> Create/delete tasks -> Profile/logout
+4. CLI still available: `python3 main.py --help`
+
+Data persists in data/. Frontend uses server-rendered templates + Bootstrap.
 
 Data/ structure ensures clean root, easy backup. All features implemented/tested per queries.

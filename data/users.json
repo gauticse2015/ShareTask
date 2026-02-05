@@ -28,5 +28,15 @@
     "name": "PosUser2",
     "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
     "registered_at": "2026-02-05 13:28:37.273754"
+  },
+  "gautam123@gmail.com": {
+    "name": "Gautam Kumar",
+    "password_hash": "08689a25636c24309756f4eb942f5ce302d11f303bde8c58cf0517c162953af9",
+    "registered_at": "2026-02-05 16:17:54.558277"
+  },
+  "jyoti123@gmail.com": {
+    "name": "Jyoti Gautam",
+    "password_hash": "c08ae55c025e17f6112a7087a00ba8a137c9b3239b24fcbfbcafc85c7796c7a7",
+    "registered_at": "2026-02-05 16:36:11.061269"
   }
 }

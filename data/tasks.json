@@ -192,5 +192,90 @@
     "start_time": null,
     "duration": null,
     "participants": {}
+  },
+  "9": {
+    "owner": "gautam123@gmail.com",
+    "title": "Testing-Live",
+    "description": "Testing the Live session task",
+    "frequency": "daily",
+    "due_date": "2026-02-05",
+    "created_at": "2026-02-05 16:19:11.940960",
+    "shared_with": [],
+    "statuses": {
+      "gautam123@gmail.com": "In Progress"
+    },
+    "master_status": "In Progress",
+    "comments": [],
+    "task_type": "live",
+    "live_status": "ended",
+    "start_time": "2026-02-05 17:12:21.325112",
+    "duration": null,
+    "participants": {}
+  },
+  "10": {
+    "owner": "gautam123@gmail.com",
+    "title": "Non Live Task",
+    "description": "Testing  Non Live Task",
+    "frequency": "weekly",
+    "due_date": "2026-02-06",
+    "created_at": "2026-02-05 16:19:45.959692",
+    "shared_with": [],
+    "statuses": {
+      "gautam123@gmail.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
+  },
+  "12": {
+    "owner": "jyoti123@gmail.com",
+    "title": "Jyoti Non Live-Task",
+    "description": "Testing Non live task for jyoti",
+    "frequency": "daily",
+    "due_date": "2026-02-14",
+    "created_at": "2026-02-05 16:37:20.646836",
+    "shared_with": [
+      "gautam123@gmail.com"
+    ],
+    "statuses": {
+      "jyoti123@gmail.com": "To Do",
+      "gautam123@gmail.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
+  },
+  "13": {
+    "owner": "gautam123@gmail.com",
+    "title": "awerfg",
+    "description": "sfdbfdds",
+    "frequency": "daily",
+    "due_date": "2026-02-14",
+    "created_at": "2026-02-05 17:29:12.590180",
+    "shared_with": [],
+    "statuses": {
+      "gautam123@gmail.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
+  },
+  "14": {
+    "owner": "jyoti123@gmail.com",
+    "title": "test task",
+    "description": "dfsdf",
+    "frequency": "daily",
+    "due_date": "2026-02-14",
+    "created_at": "2026-02-05 17:35:10.348537",
+    "shared_with": [
+      "gautam123@gmail.com"
+    ],
+    "statuses": {
+      "jyoti123@gmail.com": "To Do",
+      "gautam123@gmail.com": "To Do"
+    },
+    "master_status": "To Do",
+    "comments": [],
+    "task_type": "normal"
   }
 }

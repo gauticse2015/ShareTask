@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShareTask - Task Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('ui_home') }}">ShareTask</a>
+            <div>
+                <a href="{{ url_for('ui_home') }}" class="btn btn-outline-light me-2">Home</a>
+                <a href="{{ url_for('ui_logout') }}" class="btn btn-outline-light">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3>Task Details: {{ task['title'] }}</h3>
+                <a href="{{ url_for('ui_home') }}" class="btn btn-secondary">Back to Tasks</a>
+            </div>
+            <div class="card-body">
+                <p><strong>Owner:</strong> {{ task['owner'] }}</p>
+                <p><strong>Description:</strong> {{ task['description'] }}</p>
+                <p><strong>Frequency:</strong> {{ task['frequency'] }}</p>
+                <p><strong>Due Date:</strong> {{ task['due_date'] }}</p>
+                <p><strong>Master Status:</strong> {{ task.get('master_status', 'To Do') }}</p>
+                <p><strong>Type:</strong> {{ task.get('task_type', 'normal') }}</p>
+                <h5>Statuses:</h5>
+                <ul>
+                    {% for u, stat in task['statuses'].items() %}
+                    <li>{{ u }}: {{ stat }}</li>
+                    {% endfor %}
+                </ul>
+                <h5>Shared With:</h5>
+                <ul>
+                    {% for u in task.get('shared_with', []) %}
+                    <li>{{ u }}</li>
+                    {% endfor %}
+                </ul>
+                <h5>Comments:</h5>
+                <ul>
+                    {% for c in task.get('comments', []) %}
+                    <li>{{ c['user'] }} @ {{ c['timestamp'][:16] }}: {{ c['comment'] }}</li>
+                    {% endfor %}
+                </ul>
+                {% if task.get('task_type') == 'live' %}
+                <h5>Live Status: {{ task.get('live_status', 'N/A') }} <span id="live-timer" class="text-danger"></span></h5>
+                <h5>Participants:</h5>
+                <ul>
+                    {% for p_email, p_data in task.get('participants', {}).items() %}
+                    <li>{{ p_email }} (joined: {{ p_data.joined[:16] }}, duration: {{ p_data.duration|default(0)|int }}s)</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- Operational supports -->
+                <div class="mt-4">
+                    <h5>Actions</h5>
+                    <!-- Share -->
+                    <form method="POST" action="{{ url_for('ui_share_task', task_id=task_id) }}" class="mb-3">
+                        <div class="input-group">
+                            <input type="email" name="share_email" class="form-control" placeholder="Share with email" required>
+                            <button type="submit" class="btn btn-success">Share</button>
+                        </div>
+                    </form>
+                    <!-- Add Comment -->
+                    <form method="POST" action="{{ url_for('ui_add_comment', task_id=task_id) }}" class="mb-3">
+                        <textarea name="comment" class="form-control mb-2" placeholder="Add comment/motivation" required></textarea>
+                        <div class="input-group">
+                            <input type="text" name="tags" class="form-control" placeholder="Tags (comma sep)">
+                            <button type="submit" class="btn btn-info">Add Comment</button>
+                        </div>
+                    </form>
+                    <!-- Start Live (if applicable and owner) -->
+                    {% if task.get('task_type') == 'live' and task['owner'] == user_email %}
+                    <form method="POST" action="{{ url_for('ui_start_live_task', task_id=task_id) }}">
+                        <div class="input-group">
+                            <input type="number" name="duration" class="form-control" placeholder="Duration (mins, optional)">
+                            <button type="submit" class="btn btn-warning">Start Live Task</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                    <!-- Join/Leave Live -->
+                    {% if task.get('task_type') == 'live' and task.get('live_status') == 'running' %}
+                    {% if user_email in task.get('participants', {}) %}
+                    <form method="POST" action="{{ url_for('ui_leave_live', task_id=task_id) }}" class="mt-2">
+                        <button type="submit" class="btn btn-secondary">Leave Live</button>
+                    </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('ui_join_live', task_id=task_id) }}" class="mt-2">
+                        <button type="submit" class="btn btn-success">Join Live</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateLiveTimer() {
+            const timerEl = document.getElementById('live-timer');
+            if (timerEl && '{{ task.get("live_status") }}' === 'running' && '{{ task.get("start_time") }}') {
+                const start = new Date('{{ task.get("start_time") }}');
+                setInterval(() => {
+                    let elapsed = Math.floor((Date.now() - start) / 1000);
+                    const h = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+                    const s = (elapsed % 60).toString().padStart(2, '0');
+                    timerEl.textContent = ` (${h}:${m}:${s} elapsed)`;
+                }, 1000);
+            }
+        }
+        updateLiveTimer();
+    </script>
+</body>
+</html>
