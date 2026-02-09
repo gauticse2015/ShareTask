@@ -2,41 +2,371 @@
   "user1@example.com": {
     "name": "UserOne",
     "password_hash": "553400175fe6de0290f9c6a0e6b07dd5ee845bba94990530a65cc98ccccf3d85",
-    "registered_at": "2026-02-05 12:15:35.406551"
+    "registered_at": "2026-02-05 12:15:35.406551",
+    "notifications": []
   },
   "user2@example.com": {
     "name": "UserTwo",
     "password_hash": "553400175fe6de0290f9c6a0e6b07dd5ee845bba94990530a65cc98ccccf3d85",
-    "registered_at": "2026-02-05 12:15:35.744439"
+    "registered_at": "2026-02-05 12:15:35.744439",
+    "notifications": []
   },
   "testpos1@example.com": {
     "name": "PosUser1",
     "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
-    "registered_at": "2026-02-05 12:30:23.008913"
+    "registered_at": "2026-02-05 12:30:23.008913",
+    "notifications": []
   },
   "testpos2@example.com": {
     "name": "PosUser2",
     "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
-    "registered_at": "2026-02-05 12:30:23.399555"
+    "registered_at": "2026-02-05 12:30:23.399555",
+    "notifications": []
   },
   "testpos12@example.com": {
     "name": "PosUser1",
     "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
-    "registered_at": "2026-02-05 13:28:36.727246"
+    "registered_at": "2026-02-05 13:28:36.727246",
+    "notifications": []
   },
   "testpos23@example.com": {
     "name": "PosUser2",
     "password_hash": "cadbe4c2d21c0ff633ce76c4c893cbebce6dc54a5dab19b89d365bfad1054dcf",
-    "registered_at": "2026-02-05 13:28:37.273754"
+    "registered_at": "2026-02-05 13:28:37.273754",
+    "notifications": []
   },
   "gautam123@gmail.com": {
     "name": "Gautam Kumar",
     "password_hash": "08689a25636c24309756f4eb942f5ce302d11f303bde8c58cf0517c162953af9",
-    "registered_at": "2026-02-05 16:17:54.558277"
+    "registered_at": "2026-02-05 16:17:54.558277",
+    "notifications": [
+      {
+        "id": "2026-02-09 06:14:01.004936",
+        "message": "Warning: Task due soon (0 days) - testing-sharing (ID:15)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:14:01.004939",
+        "read": true,
+        "task_id": "15"
+      },
+      {
+        "id": "2026-02-09 06:14:01.005390",
+        "message": "Warning: Task due soon (0 days) - test gautam sharing (ID:16)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:14:01.005392",
+        "read": true,
+        "task_id": "16"
+      },
+      {
+        "id": "2026-02-09 06:14:01.005837",
+        "message": "Warning: Task due soon (1 days) - task-assignee testing (ID:18)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:14:01.005840",
+        "read": true,
+        "task_id": "18"
+      },
+      {
+        "id": "2026-02-09 06:14:01.006294",
+        "message": "Warning: Task due soon (1 days) - test task history (ID:19)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:14:01.006297",
+        "read": true,
+        "task_id": "19"
+      },
+      {
+        "id": "2026-02-09 06:16:10.439049",
+        "message": "Warning: Task due soon (1 days) - test-sharing (ID:9)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:16:10.439058",
+        "read": true,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:20:12.258554",
+        "message": "User jyoti123@gmail.com accepted shared task test-sharing (ID: 9)",
+        "type": "info",
+        "timestamp": "2026-02-09 06:20:12.258559",
+        "read": true,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:31:20.319349",
+        "message": "User jyoti123@gmail.com accepted shared task test-sharing (ID: 9)",
+        "type": "info",
+        "timestamp": "2026-02-09 06:31:20.319353",
+        "read": true,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:34:42.493057",
+        "message": "Warning: Task due soon (1 days) - sfgsdf (ID:10)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:34:42.493064",
+        "read": true,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:43:37.199258",
+        "message": "User jyoti123@gmail.com accepted shared task sfgsdf (ID: 10)",
+        "type": "info",
+        "timestamp": "2026-02-09 06:43:37.199271",
+        "read": true,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:44:15.536451",
+        "message": "New task shared: sfgsdf (ID: 10) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:44:15.536458",
+        "read": true,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:44:15.542312",
+        "message": "Warning: Task due soon (1 days) - test-sharing (ID:9)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:44:15.542323",
+        "read": true,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:51:40.009021",
+        "message": "Warning: Task due soon (1 days) - sdgfgd fsgfdg (ID:11)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:51:40.009030",
+        "read": true,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 06:51:48.504242",
+        "message": "New task shared: sdgfgd fsgfdg (ID: 11) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:51:48.504247",
+        "read": true,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 06:51:48.509824",
+        "message": "Warning: Task due soon (1 days) - sfgsdf (ID:10)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:51:48.509833",
+        "read": true,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:52:11.962201",
+        "message": "User jyoti123@gmail.com accepted shared task sdgfgd fsgfdg (ID: 11)",
+        "type": "info",
+        "timestamp": "2026-02-09 06:52:11.962207",
+        "read": true,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 07:02:45.820195",
+        "message": "Warning: Task due soon (1 days) - test-gautam-assignment (ID:12)",
+        "type": "warning",
+        "timestamp": "2026-02-09 07:02:45.820208",
+        "read": true,
+        "task_id": "12"
+      },
+      {
+        "id": "2026-02-09 07:02:49.664729",
+        "message": "Warning: Task due soon (1 days) - test-sharing (ID:9)",
+        "type": "warning",
+        "timestamp": "2026-02-09 07:02:49.664738",
+        "read": true,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 07:02:49.665499",
+        "message": "Warning: Task due soon (1 days) - sdgfgd fsgfdg (ID:11)",
+        "type": "warning",
+        "timestamp": "2026-02-09 07:02:49.665509",
+        "read": true,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 07:03:16.885017",
+        "message": "User jyoti123@gmail.com accepted shared task test-gautam-assignment (ID: 12)",
+        "type": "info",
+        "timestamp": "2026-02-09 07:03:16.885023",
+        "read": true,
+        "task_id": "12"
+      },
+      {
+        "id": "2026-02-09 07:03:47.678993",
+        "message": "Warning: Task due soon (1 days) - sfgsdf (ID:10)",
+        "type": "warning",
+        "timestamp": "2026-02-09 07:03:47.679003",
+        "read": true,
+        "task_id": "10"
+      }
+    ]
   },
   "jyoti123@gmail.com": {
     "name": "Jyoti Gautam",
     "password_hash": "c08ae55c025e17f6112a7087a00ba8a137c9b3239b24fcbfbcafc85c7796c7a7",
-    "registered_at": "2026-02-05 16:36:11.061269"
+    "registered_at": "2026-02-05 16:36:11.061269",
+    "notifications": [
+      {
+        "id": "2026-02-09 05:48:50.623387",
+        "message": "User gautam123@gmail.com rejected shared task testing assigning task (ID: 17) - Reason: not interested",
+        "type": "critical",
+        "timestamp": "2026-02-09 05:48:50.623391",
+        "read": true,
+        "task_id": "17"
+      },
+      {
+        "id": "2026-02-09 05:49:32.433007",
+        "message": "New task shared: task-assignee testing (ID: 18) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 05:49:32.433019",
+        "read": true,
+        "task_id": "18"
+      },
+      {
+        "id": "2026-02-09 05:49:38.758268",
+        "message": "Warning: Task due soon (0 days) - testing assigning task (ID:17)",
+        "type": "warning",
+        "timestamp": "2026-02-09 05:49:38.758285",
+        "read": true,
+        "task_id": "17"
+      },
+      {
+        "id": "2026-02-09 05:49:44.387902",
+        "message": "Warning: Task due soon (1 days) - task-assignee testing (ID:18)",
+        "type": "warning",
+        "timestamp": "2026-02-09 05:49:44.387910",
+        "read": true,
+        "task_id": "18"
+      },
+      {
+        "id": "2026-02-09 05:49:48.675868",
+        "message": "Warning: Task due soon (0 days) - testing-sharing (ID:15)",
+        "type": "warning",
+        "timestamp": "2026-02-09 05:49:48.675877",
+        "read": true,
+        "task_id": "15"
+      },
+      {
+        "id": "2026-02-09 05:53:30.396279",
+        "message": "New task shared: test gautam sharing (ID: 16) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 05:53:30.396601",
+        "read": true,
+        "task_id": "16"
+      },
+      {
+        "id": "2026-02-09 06:05:43.570974",
+        "message": "Warning: Task due soon (0 days) - test gautam sharing (ID:16)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:05:43.570982",
+        "read": true,
+        "task_id": "16"
+      },
+      {
+        "id": "2026-02-09 06:06:44.583974",
+        "message": "New task shared: test task history (ID: 19) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:06:44.583977",
+        "read": true,
+        "task_id": "19"
+      },
+      {
+        "id": "2026-02-09 06:06:49.844377",
+        "message": "Warning: Task due soon (0 days) - testing assigning task (ID:17)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:06:49.844395",
+        "read": true,
+        "task_id": "17"
+      },
+      {
+        "id": "2026-02-09 06:06:55.094408",
+        "message": "Warning: Task due soon (1 days) - test task history (ID:19)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:06:55.094416",
+        "read": true,
+        "task_id": "19"
+      },
+      {
+        "id": "2026-02-09 06:06:58.343690",
+        "message": "Warning: Task due soon (0 days) - testing-sharing (ID:15)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:06:58.343698",
+        "read": true,
+        "task_id": "15"
+      },
+      {
+        "id": "2026-02-09 06:16:44.045325",
+        "message": "New task shared: test-sharing (ID: 9) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:16:44.045328",
+        "read": false,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:20:12.511397",
+        "message": "Warning: Task due soon (1 days) - test-sharing (ID:9)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:20:12.511406",
+        "read": false,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:31:08.418578",
+        "message": "New task shared: test-sharing (ID: 9) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:31:08.418581",
+        "read": false,
+        "task_id": "9"
+      },
+      {
+        "id": "2026-02-09 06:43:26.892774",
+        "message": "New task shared: sfgsdf (ID: 10) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:43:26.892782",
+        "read": false,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:43:37.411157",
+        "message": "Warning: Task due soon (1 days) - sfgsdf (ID:10)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:43:37.411164",
+        "read": false,
+        "task_id": "10"
+      },
+      {
+        "id": "2026-02-09 06:52:02.843668",
+        "message": "New task shared: sdgfgd fsgfdg (ID: 11) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 06:52:02.843674",
+        "read": false,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 06:52:12.173407",
+        "message": "Warning: Task due soon (1 days) - sdgfgd fsgfdg (ID:11)",
+        "type": "warning",
+        "timestamp": "2026-02-09 06:52:12.173414",
+        "read": false,
+        "task_id": "11"
+      },
+      {
+        "id": "2026-02-09 07:03:04.047836",
+        "message": "New task shared: test-gautam-assignment (ID: 12) from gautam123@gmail.com",
+        "type": "info",
+        "timestamp": "2026-02-09 07:03:04.047842",
+        "read": false,
+        "task_id": "12"
+      },
+      {
+        "id": "2026-02-09 07:03:17.198500",
+        "message": "Warning: Task due soon (1 days) - test-gautam-assignment (ID:12)",
+        "type": "warning",
+        "timestamp": "2026-02-09 07:03:17.198514",
+        "read": false,
+        "task_id": "12"
+      }
+    ]
   }
 }

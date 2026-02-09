@@ -1,9 +1,20 @@
-from src.utils import load_data, save_data, TASKS_FILE, get_current_user
+from src.utils import load_data, save_data, TASKS_FILE, USERS_FILE, get_current_user
 from datetime import datetime, timedelta
 import csv
 import time
+from src.user import add_notification, get_notifications
 
-def create_task(title, description, frequency, due_date, task_type='normal', user_email=None, start_time=None, duration=None):
+def add_to_history(task, action, user, details=''):
+    if 'history' not in task:
+        task['history'] = []
+    task['history'].append({
+        'action': action,
+        'user': user,
+        'timestamp': str(datetime.now()),
+        'details': details
+    })
+
+def create_task(title, description, frequency, due_date, task_type='normal', category='sharing', user_email=None, start_time=None, duration=None):
     current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
@@ -26,7 +37,8 @@ def create_task(title, description, frequency, due_date, task_type='normal', use
         'statuses': {current_email: 'To Do'},
         'master_status': 'To Do',
         'comments': [],
-        'task_type': task_type
+        'task_type': task_type,
+        'category': category
     }
     if task_type == 'live':
         task_data['live_status'] = 'not_started'
@@ -34,11 +46,12 @@ def create_task(title, description, frequency, due_date, task_type='normal', use
         task_data['duration'] = duration  # mins, 0=indef
         task_data['participants'] = {}  # email: {'joined': ts, 'left': ts or None, 'duration': secs}
         task_data['live_mode'] = 'preconfigured' if start_time else 'dynamic'
+    add_to_history(task_data, 'created', current_email, f"Category: {category}, type: {task_type}")
     tasks[task_id] = task_data
     save_data(TASKS_FILE, tasks)
     return True, f"Task created: {title} (type: {task_type})"
 
-def share_task(task_id, share_email, user_email=None):
+def share_task(task_id, share_email, context=None, user_email=None):
     current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
@@ -52,10 +65,33 @@ def share_task(task_id, share_email, user_email=None):
         return False, "User to share with not registered"
     task = tasks[task_id]
     if share_email not in task['shared_with']:
+        if task.get('category') == 'assignment':
+            if task.get('shared_with'):
+                # reassign only if current assignee status allows
+                curr_assignee = task['shared_with'][0]
+                curr_stat = task['statuses'].get(curr_assignee, '')
+                if curr_stat in ['In Progress']:
+                    return False, "Cannot reassign assignment task in In Progress"
+                # unassign old
+                task['shared_with'].remove(curr_assignee)
+                if curr_assignee in task['statuses']:
+                    del task['statuses'][curr_assignee]
+            if len(task.get('shared_with', [])) > 0:
+                return False, "Assignment category supports only one assignee"
         task['shared_with'].append(share_email)
-        task['statuses'][share_email] = 'To Do'
+        if share_email == current_email:
+            task['statuses'][share_email] = 'To Do'
+        else:
+            task['statuses'][share_email] = 'Pending'
+        if context:
+            task['assign_context'] = context
+        add_to_history(task, 'shared', current_email, f"with {share_email}{', context: ' + context if context else ''}")
         save_data(TASKS_FILE, tasks)
-    return True, f"Task shared with {share_email}"
+        msg = f"New task shared: {task['title']} (ID: {task_id}) from {current_email}"
+        if context:
+            msg += f" - Context: {context}"
+        add_notification(share_email, msg, 'info', task_id)
+    return True, f"Task shared with {share_email} (pending acceptance)"
 
 def update_task_status(task_id, status, user_email=None):
     current_email = user_email or get_current_user()
@@ -67,6 +103,12 @@ def update_task_status(task_id, status, user_email=None):
     task = tasks[task_id]
     if current_email not in task['statuses']:
         return False, "No permission to update this task"
+    if task.get('category') == 'assignment' and current_email == task['owner']:
+        shared = task.get('shared_with', [])
+        if shared and shared[0] != current_email:
+            return False, "Only assignee can update in assignment category (reclaim first)"
+    if task['statuses'][current_email] == 'Pending':
+        return False, "Accept the shared task first"
     if status not in ['To Do', 'In Progress', 'Done']:
         return False, "Invalid status"
     task['statuses'][current_email] = status
@@ -77,10 +119,14 @@ def update_task_status(task_id, status, user_email=None):
         task['master_status'] = 'In Progress'
     else:
         task['master_status'] = 'To Do'
+    if task.get('category') == 'assignment' and task.get('shared_with'):
+        assignee = task['shared_with'][0]
+        task['master_status'] = task['statuses'].get(assignee, task['master_status'])
+    add_to_history(task, 'status_update', current_email, f"to {status}")
     save_data(TASKS_FILE, tasks)
     return True, "Status updated"
 
-def add_comment(task_id, comment, tags=None, user_email=None):
+def add_comment(task_id, comment, user_email=None):
     current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first"
@@ -90,14 +136,12 @@ def add_comment(task_id, comment, tags=None, user_email=None):
     task = tasks[task_id]
     if current_email not in task['statuses'] and current_email != task['owner']:
         return False, "No permission to comment"
-    if tags is None:
-        tags = []
     task['comments'].append({
         'user': current_email,
         'comment': comment,
-        'timestamp': str(datetime.now()),
-        'tags': tags
+        'timestamp': str(datetime.now())
     })
+    add_to_history(task, 'comment_added', current_email, comment[:50])
     save_data(TASKS_FILE, tasks)
     return True, "Comment added"
 
@@ -116,8 +160,62 @@ def revoke_share(task_id, revoke_email, user_email=None):
     task['shared_with'].remove(revoke_email)
     if revoke_email in task['statuses']:
         del task['statuses'][revoke_email]
+    add_to_history(task, 'revoked_share', current_email, f"from {revoke_email}")
     save_data(TASKS_FILE, tasks)
     return True, f"Share revoked from {revoke_email}"
+
+def accept_shared_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return False, "Please login first"
+    tasks = load_data(TASKS_FILE)
+    if task_id not in tasks:
+        return False, "Task not found"
+    task = tasks[task_id]
+    if current_email not in task.get('statuses', {}):
+        return False, "No permission"
+    if task['statuses'][current_email] != 'Pending':
+        return False, "Task not in pending state"
+    task['statuses'][current_email] = 'To Do'
+    statuses = task['statuses'].values()
+    if all(s == 'Done' for s in statuses):
+        task['master_status'] = 'Done'
+    elif any(s == 'In Progress' for s in statuses):
+        task['master_status'] = 'In Progress'
+    else:
+        task['master_status'] = 'To Do'
+    add_to_history(task, 'accepted', current_email, 'Shared task accepted')
+    save_data(TASKS_FILE, tasks)
+    add_notification(task['owner'], f"User {current_email} accepted shared task {task['title']} (ID: {task_id})", 'info', task_id)
+    return True, "Task accepted and set to To Do"
+
+def reject_shared_task(task_id, reason=None, user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return False, "Please login first"
+    tasks = load_data(TASKS_FILE)
+    if task_id not in tasks:
+        return False, "Task not found"
+    task = tasks[task_id]
+    if current_email not in task.get('statuses', {}) or task['statuses'][current_email] != 'Pending':
+        return False, "Task not pending for you"
+    if reason:
+        task['comments'].append({
+            'user': current_email,
+            'comment': f"Rejection reason: {reason}",
+            'timestamp': str(datetime.now())
+        })
+    if current_email in task.get('shared_with', []):
+        task['shared_with'].remove(current_email)
+    if current_email in task['statuses']:
+        del task['statuses'][current_email]
+    add_to_history(task, 'rejected', current_email, f"Reason: {reason or 'none'}")
+    save_data(TASKS_FILE, tasks)
+    notif_msg = f"User {current_email} rejected shared task {task['title']} (ID: {task_id})"
+    if reason:
+        notif_msg += f" - Reason: {reason}"
+    add_notification(task['owner'], notif_msg, 'critical', task_id)
+    return True, "Task rejected"
 
 def start_live_task(task_id, duration=None, user_email=None):
     current_email = user_email or get_current_user()
@@ -142,6 +240,7 @@ def start_live_task(task_id, duration=None, user_email=None):
         'left': None,
         'duration': 0
     }
+    add_to_history(task, 'live_started', current_email, f"duration: {duration}")
     save_data(TASKS_FILE, tasks)
     return True, f"Live task started (duration: {duration} mins if set)"
 
@@ -166,6 +265,7 @@ def stop_live_task(task_id, user_email=None):
             joined = datetime.fromisoformat(p['joined'])
             p['left'] = str(left_ts)
             p['duration'] = (left_ts - joined).total_seconds()
+    add_to_history(task, 'live_stopped', current_email)
     save_data(TASKS_FILE, tasks)
     return True, "Live task stopped"
 
@@ -260,6 +360,7 @@ def list_tasks(show_shared=False, user_email=None):
     current_email = user_email or get_current_user()
     if not current_email:
         return False, "Please login first", []
+    check_due_date_notifications(current_email)
     tasks = load_data(TASKS_FILE)
     user_tasks = []
     for tid, task in tasks.items():
@@ -299,7 +400,7 @@ def generate_report(user_email=None):
                 report += f"  {user}: {stat}\n"
             report += "Comments:\n"
             for c in task.get('comments', []):
-                report += f"  {c['user']} @ {c['timestamp']}: {c['comment']} (tags: {c.get('tags', [])})\n"
+                report += f"  {c['user']} @ {c['timestamp']}: {c['comment']}\n"
             if task.get('task_type') == 'live':
                 report += f"Live Status: {task.get('live_status')}\n"
             report += "---\n"
@@ -328,3 +429,57 @@ def delete_task(task_id, user_email=None):
     del tasks[task_id]
     save_data(TASKS_FILE, tasks)
     return True, "Task deleted"
+
+def reclaim_task(task_id, user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return False, "Please login first"
+    tasks = load_data(TASKS_FILE)
+    if task_id not in tasks:
+        return False, "Task not found"
+    task = tasks[task_id]
+    if task['owner'] != current_email or task.get('category') != 'assignment':
+        return False, "Only owner can reclaim assignment task"
+    if task.get('shared_with'):
+        assignee = task['shared_with'][0]
+        assignee_stat = task['statuses'].get(assignee, '')
+        if assignee_stat == 'In Progress':
+            return False, "Cannot reclaim assignment task in In Progress"
+        task['shared_with'].remove(assignee)
+        if assignee in task['statuses']:
+            del task['statuses'][assignee]
+    task['statuses'][current_email] = 'To Do'
+    add_to_history(task, 'reclaimed', current_email, 'Task reclaimed from assignee')
+    save_data(TASKS_FILE, tasks)
+    return True, "Task reclaimed by owner"
+
+def check_due_date_notifications(user_email=None):
+    current_email = user_email or get_current_user()
+    if not current_email:
+        return
+    tasks = load_data(TASKS_FILE)
+    today = datetime.now().date()
+    for tid, task in tasks.items():
+        if current_email != task.get('owner'):
+            if current_email not in task.get('statuses', {}) or task.get('statuses', {}).get(current_email) == 'Pending':
+                continue
+        try:
+            due_str = task.get('due_date')
+            if not due_str:
+                continue
+            due = datetime.strptime(due_str, '%Y-%m-%d').date()
+            days_left = (due - today).days
+            if days_left < 0:
+                msg = f"Critical: Task overdue - {task['title']} (ID:{tid})"
+                ntype = 'critical'
+            elif days_left <= 3:
+                msg = f"Warning: Task due soon ({days_left} days) - {task['title']} (ID:{tid})"
+                ntype = 'warning'
+            else:
+                continue
+            users = load_data(USERS_FILE)
+            notifs = users.get(current_email, {}).get('notifications', [])
+            if not any(n.get('message') == msg for n in notifs[-5:]):
+                add_notification(current_email, msg, ntype, tid)
+        except:
+            continue

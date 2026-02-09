@@ -2,6 +2,7 @@ import json
 import hashlib
 import os
 import re
+import fcntl
 from datetime import datetime
 
 USERS_FILE = 'data/users.json'
@@ -15,6 +16,9 @@ def load_data(file_path):
 
 def save_data(file_path, data):
     with open(file_path, 'w') as f:
+        # lock for concurrent task updates to handle race conditions gracefully
+        if TASKS_FILE in file_path:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
         json.dump(data, f, indent=2, default=str)
 
 def hash_password(password):

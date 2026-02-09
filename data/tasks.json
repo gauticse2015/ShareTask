@@ -195,87 +195,262 @@
   },
   "9": {
     "owner": "gautam123@gmail.com",
-    "title": "Testing-Live",
-    "description": "Testing the Live session task",
+    "title": "test-sharing",
+    "description": "dsfsd sdfsfdg",
     "frequency": "daily",
-    "due_date": "2026-02-05",
-    "created_at": "2026-02-05 16:19:11.940960",
+    "due_date": "2026-02-10",
+    "created_at": "2026-02-09 06:16:10.432163",
     "shared_with": [],
     "statuses": {
       "gautam123@gmail.com": "In Progress"
     },
     "master_status": "In Progress",
-    "comments": [],
-    "task_type": "live",
-    "live_status": "ended",
-    "start_time": "2026-02-05 17:12:21.325112",
-    "duration": null,
-    "participants": {}
+    "comments": [
+      {
+        "user": "gautam123@gmail.com",
+        "comment": "sdfdsgf",
+        "timestamp": "2026-02-09 06:30:44.802111"
+      },
+      {
+        "user": "gautam123@gmail.com",
+        "comment": "sfdgfsgfd",
+        "timestamp": "2026-02-09 06:30:50.846386"
+      },
+      {
+        "user": "jyoti123@gmail.com",
+        "comment": "gfsdgdsfg",
+        "timestamp": "2026-02-09 06:31:25.441841"
+      },
+      {
+        "user": "gautam123@gmail.com",
+        "comment": "asrfgfsg",
+        "timestamp": "2026-02-09 06:31:34.124904"
+      }
+    ],
+    "task_type": "normal",
+    "category": "assignment",
+    "history": [
+      {
+        "action": "created",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:16:10.432180",
+        "details": "Category: assignment, type: normal"
+      }
+    ]
   },
   "10": {
     "owner": "gautam123@gmail.com",
-    "title": "Non Live Task",
-    "description": "Testing  Non Live Task",
-    "frequency": "weekly",
-    "due_date": "2026-02-06",
-    "created_at": "2026-02-05 16:19:45.959692",
-    "shared_with": [],
+    "title": "sfgsdf",
+    "description": "sfgdsf",
+    "frequency": "daily",
+    "due_date": "2026-02-10",
+    "created_at": "2026-02-09 06:34:42.487516",
+    "shared_with": [
+      "jyoti123@gmail.com",
+      "gautam123@gmail.com"
+    ],
     "statuses": {
-      "gautam123@gmail.com": "To Do"
+      "gautam123@gmail.com": "In Progress",
+      "jyoti123@gmail.com": "To Do"
+    },
+    "master_status": "In Progress",
+    "comments": [],
+    "task_type": "normal",
+    "category": "sharing",
+    "history": [
+      {
+        "action": "created",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:34:42.487528",
+        "details": "Category: sharing, type: normal"
+      },
+      {
+        "action": "status_update",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:43:03.152698",
+        "details": "to Done"
+      },
+      {
+        "action": "status_update",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:43:15.372318",
+        "details": "to To Do"
+      },
+      {
+        "action": "shared",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:43:26.892075",
+        "details": "with jyoti123@gmail.com"
+      },
+      {
+        "action": "accepted",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 06:43:37.198819",
+        "details": "Shared task accepted"
+      },
+      {
+        "action": "status_update",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 06:43:41.389892",
+        "details": "to In Progress"
+      },
+      {
+        "action": "status_update",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 06:43:49.048039",
+        "details": "to Done"
+      },
+      {
+        "action": "status_update",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 06:43:52.538990",
+        "details": "to To Do"
+      },
+      {
+        "action": "shared",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:44:15.535696",
+        "details": "with gautam123@gmail.com"
+      },
+      {
+        "action": "status_update",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:44:23.048233",
+        "details": "to In Progress"
+      }
+    ]
+  },
+  "11": {
+    "owner": "gautam123@gmail.com",
+    "title": "sdgfgd fsgfdg",
+    "description": "fdsgdfh dfhgdfgh fdhgdfhdg",
+    "frequency": "daily",
+    "due_date": "2026-02-10",
+    "created_at": "2026-02-09 06:51:39.739165",
+    "shared_with": [
+      "jyoti123@gmail.com"
+    ],
+    "statuses": {
+      "jyoti123@gmail.com": "To Do"
     },
     "master_status": "To Do",
     "comments": [],
-    "task_type": "normal"
+    "task_type": "normal",
+    "category": "assignment",
+    "history": [
+      {
+        "action": "created",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:51:39.739190",
+        "details": "Category: assignment, type: normal"
+      },
+      {
+        "action": "shared",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:51:48.503768",
+        "details": "with gautam123@gmail.com"
+      },
+      {
+        "action": "shared",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 06:52:02.842353",
+        "details": "with jyoti123@gmail.com"
+      },
+      {
+        "action": "accepted",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 06:52:11.961694",
+        "details": "Shared task accepted"
+      }
+    ]
   },
   "12": {
-    "owner": "jyoti123@gmail.com",
-    "title": "Jyoti Non Live-Task",
-    "description": "Testing Non live task for jyoti",
-    "frequency": "daily",
-    "due_date": "2026-02-14",
-    "created_at": "2026-02-05 16:37:20.646836",
-    "shared_with": [
-      "gautam123@gmail.com"
-    ],
-    "statuses": {
-      "jyoti123@gmail.com": "To Do",
-      "gautam123@gmail.com": "To Do"
-    },
-    "master_status": "To Do",
-    "comments": [],
-    "task_type": "normal"
-  },
-  "13": {
     "owner": "gautam123@gmail.com",
-    "title": "awerfg",
-    "description": "sfdbfdds",
+    "title": "test-gautam-assignment",
+    "description": "dsfgfdg",
     "frequency": "daily",
-    "due_date": "2026-02-14",
-    "created_at": "2026-02-05 17:29:12.590180",
+    "due_date": "2026-02-10",
+    "created_at": "2026-02-09 07:02:45.808610",
     "shared_with": [],
     "statuses": {
-      "gautam123@gmail.com": "To Do"
+      "gautam123@gmail.com": "In Progress"
     },
-    "master_status": "To Do",
-    "comments": [],
-    "task_type": "normal"
-  },
-  "14": {
-    "owner": "jyoti123@gmail.com",
-    "title": "test task",
-    "description": "dfsdf",
-    "frequency": "daily",
-    "due_date": "2026-02-14",
-    "created_at": "2026-02-05 17:35:10.348537",
-    "shared_with": [
-      "gautam123@gmail.com"
+    "master_status": "In Progress",
+    "comments": [
+      {
+        "user": "jyoti123@gmail.com",
+        "comment": "let's do it",
+        "timestamp": "2026-02-09 07:03:28.994933"
+      },
+      {
+        "user": "gautam123@gmail.com",
+        "comment": "what's latest jypti",
+        "timestamp": "2026-02-09 07:04:04.902301"
+      }
     ],
-    "statuses": {
-      "jyoti123@gmail.com": "To Do",
-      "gautam123@gmail.com": "To Do"
-    },
-    "master_status": "To Do",
-    "comments": [],
-    "task_type": "normal"
+    "task_type": "normal",
+    "category": "assignment",
+    "history": [
+      {
+        "action": "created",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:02:45.808658",
+        "details": "Category: assignment, type: normal"
+      },
+      {
+        "action": "status_update",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:02:54.249801",
+        "details": "to In Progress"
+      },
+      {
+        "action": "shared",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:03:04.045786",
+        "details": "with jyoti123@gmail.com"
+      },
+      {
+        "action": "accepted",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 07:03:16.884317",
+        "details": "Shared task accepted"
+      },
+      {
+        "action": "comment_added",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 07:03:28.994993",
+        "details": "let's do it"
+      },
+      {
+        "action": "status_update",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 07:03:34.754267",
+        "details": "to In Progress"
+      },
+      {
+        "action": "comment_added",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:04:04.902322",
+        "details": "what's latest jypti"
+      },
+      {
+        "action": "status_update",
+        "user": "jyoti123@gmail.com",
+        "timestamp": "2026-02-09 07:04:22.461481",
+        "details": "to To Do"
+      },
+      {
+        "action": "reclaimed",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:04:27.881021",
+        "details": "Task reclaimed from assignee"
+      },
+      {
+        "action": "status_update",
+        "user": "gautam123@gmail.com",
+        "timestamp": "2026-02-09 07:04:30.811780",
+        "details": "to In Progress"
+      }
+    ]
   }
 }

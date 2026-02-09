@@ -8,12 +8,34 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('ui_home') }}">ShareTask</a>
-            <div>
+            <div class="d-flex align-items-center">
                 <a href="{{ url_for('ui_profile') }}" class="btn btn-outline-light me-2">Profile</a>
                 <!-- Report -->
                 <form method="POST" action="{{ url_for('ui_generate_report') }}" style="display:inline;">
                     <button type="submit" class="btn btn-outline-light me-2">Generate Report</button>
                 </form>
+                <!-- Notifications icon/dropdown -->
+                <div class="dropdown me-2">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        🔔 <span class="badge bg-danger">{{ unread_count }}</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="notifDropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                        {% if notifications %}
+                        {% for n in notifications[:3] %}
+                        <li><a class="dropdown-item {% if not n.read %}fw-bold{% endif %}" href="{{ url_for('ui_notifications') }}">
+                            <span class="badge {% if n.type == 'critical' %}bg-danger{% elif n.type == 'warning' %}bg-warning{% else %}bg-info{% endif %}">{{ n.type }}</span>
+                            {{ n.message|truncate(80) }} <small>({{ n.timestamp[:10] }})</small>
+                        </a></li>
+                        {% endfor %}
+                        {% if notifications|length > 3 %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center" href="{{ url_for('ui_notifications') }}">View all ({{ notifications|length }})</a></li>
+                        {% endif %}
+                        {% else %}
+                        <li><a class="dropdown-item">No notifications</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
                 <a href="{{ url_for('ui_logout') }}" class="btn btn-outline-light">Logout</a>
             </div>
         </div>
@@ -52,7 +74,16 @@
                     </div>
                     <div class="card-footer">
                         <a href="{{ url_for('ui_task_details', task_id=tid) }}" class="btn btn-info btn-sm">Details</a>
-                        {% if task.get('task_type') != 'live' %}
+                        {% if task.get('statuses', {}).get(user_email) == 'Pending' %}
+                        <!-- Pending accept/reject in home -->
+                        <form method="POST" action="{{ url_for('ui_accept_shared_task', task_id=tid) }}" style="display:inline;" class="ms-2">
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('ui_reject_shared_task', task_id=tid) }}" style="display:inline;" class="ms-2" onsubmit="return confirm('Reject?')">
+                            <input type="text" name="reason" class="form-control form-control-sm d-inline w-50" placeholder="Reject reason" required>
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                        {% elif task.get('task_type') != 'live' %}
                         <!-- Update status from home (non-live only) -->
                         <form method="POST" action="{{ url_for('ui_update_status_home', task_id=tid) }}" style="display:inline;" class="ms-2">
                             <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
@@ -110,5 +141,7 @@
         setInterval(updateLiveTimers, 1000);
         updateLiveTimers();
     </script>
+    <!-- Bootstrap JS for dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

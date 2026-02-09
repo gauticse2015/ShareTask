@@ -1,7 +1,7 @@
 import argparse
 import sys
-from src.user import register_user, login_user
-from src.task import create_task, share_task, update_task_status, list_tasks, revoke_share, add_comment, generate_report, start_live_task, stop_live_task, checkin_live_task, get_live_status
+from src.user import register_user, login_user, get_notifications
+from src.task import create_task, share_task, update_task_status, list_tasks, revoke_share, add_comment, generate_report, start_live_task, stop_live_task, checkin_live_task, get_live_status, accept_shared_task, reject_shared_task
 
 def main():
     parser = argparse.ArgumentParser(description='Shareable Task Tracker CLI')
@@ -25,6 +25,7 @@ def main():
     create.add_argument('--frequency', required=True, choices=['daily', 'weekly', 'monthly', 'one-time'])
     create.add_argument('--due-date', required=True)
     create.add_argument('--type', choices=['normal', 'live'], default='normal')
+    create.add_argument('--category', choices=['sharing', 'assignment'], default='sharing')
 
     # Share task
     share = subparsers.add_parser('share-task', help='Share a task')
@@ -36,11 +37,16 @@ def main():
     revoke.add_argument('--task-id', required=True)
     revoke.add_argument('--email', required=True)
 
+    # Accept/reject shared task (for pending state lifecycle)
+    accept = subparsers.add_parser('accept-task', help='Accept pending shared task')
+    accept.add_argument('--task-id', required=True)
+    reject = subparsers.add_parser('reject-task', help='Reject pending shared task')
+    reject.add_argument('--task-id', required=True)
+
     # Add comment
-    comment = subparsers.add_parser('add-comment', help='Add comment/motivation to task (tag users with @email)')
+    comment = subparsers.add_parser('add-comment', help='Add comment/motivation to task')
     comment.add_argument('--task-id', required=True)
     comment.add_argument('--comment', required=True)
-    comment.add_argument('--tags', nargs='*', help='Optional tags/emails')
 
     # Update status
     update = subparsers.add_parser('update-status', help='Update task status')
@@ -68,6 +74,9 @@ def main():
     lst = subparsers.add_parser('list-tasks', help='List all tasks (own created + shared with user)')
     lst.add_argument('--shared', action='store_true', help='Deprecated: now always included')
 
+    # Notifications (due dates, shares, rejections)
+    notifs = subparsers.add_parser('notifications', help='View user notifications')
+
     args = parser.parse_args()
 
     if args.command == 'register':
@@ -85,7 +94,7 @@ def main():
             print(f"ERROR: {msg}")
             sys.exit(1)
     elif args.command == 'create-task':
-        success, msg = create_task(args.title, args.description, args.frequency, args.due_date, args.type)
+        success, msg = create_task(args.title, args.description, args.frequency, args.due_date, args.type, args.category)
         if success:
             print(msg)
         else:
@@ -105,8 +114,22 @@ def main():
         else:
             print(f"ERROR: {msg}")
             sys.exit(1)
+    elif args.command == 'accept-task':
+        success, msg = accept_shared_task(args.task_id)
+        if success:
+            print(msg)
+        else:
+            print(f"ERROR: {msg}")
+            sys.exit(1)
+    elif args.command == 'reject-task':
+        success, msg = reject_shared_task(args.task_id)
+        if success:
+            print(msg)
+        else:
+            print(f"ERROR: {msg}")
+            sys.exit(1)
     elif args.command == 'add-comment':
-        success, msg = add_comment(args.task_id, args.comment, args.tags)
+        success, msg = add_comment(args.task_id, args.comment)
         if success:
             print(msg)
         else:
@@ -166,11 +189,25 @@ def main():
                 print(f"  Shared with: {task.get('shared_with', [])}")
                 print("  Comments:")
                 for c in task.get('comments', []):
-                    print(f"    {c['user']} @ {c['timestamp']}: {c['comment']} (tags: {c.get('tags', [])})")
+                    print(f"    {c['user']} @ {c['timestamp']}: {c['comment']}")
                 print("---")
         else:
             print(f"ERROR: {msg}")
             sys.exit(1)
+    elif args.command == 'notifications':
+        current = None
+        try:
+            from src.utils import get_current_user
+            current = get_current_user()
+        except:
+            pass
+        if not current:
+            print("Please login first (no session)")
+        else:
+            notifs = get_notifications(current)
+            print("Notifications:")
+            for n in notifs:
+                print(f"[{n.get('type', 'info').upper()}] {n.get('message')} @ {n.get('timestamp', '')[:16]}")
     elif args.command == 'generate-report':
         success, report = generate_report()
         if success:

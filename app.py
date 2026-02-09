@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import uuid
 import os
 from functools import wraps
-from src.user import register_user, login_user, get_user_by_email
-from src.task import create_task, share_task, update_task_status, list_tasks, revoke_share, add_comment, generate_report, start_live_task, stop_live_task, checkin_live_task, leave_live_task, get_live_status, delete_task
-from src.utils import USERS_FILE, TASKS_FILE, load_data
+from src.user import register_user, login_user, get_user_by_email, get_notifications, mark_notification_read
+from src.task import create_task, share_task, update_task_status, list_tasks, revoke_share, add_comment, generate_report, start_live_task, stop_live_task, checkin_live_task, leave_live_task, get_live_status, delete_task, accept_shared_task, reject_shared_task, reclaim_task
+from src.utils import USERS_FILE, TASKS_FILE, load_data, save_data
 
 app = Flask(__name__)
 app.secret_key = 'secret_key_for_session'
@@ -66,7 +66,8 @@ def api_create_task(user_email):
     if not data or 'title' not in data or 'description' not in data or 'frequency' not in data or 'due_date' not in data:
         return jsonify({'error': 'Missing fields'}), 400
     task_type = data.get('type', 'normal')
-    success, msg = create_task(data['title'], data['description'], data['frequency'], data['due_date'], task_type, user_email)
+    category = data.get('category', 'sharing')
+    success, msg = create_task(data['title'], data['description'], data['frequency'], data['due_date'], task_type, category, user_email)
     if success:
         return jsonify({'message': msg}), 201
     return jsonify({'error': msg}), 400
@@ -93,7 +94,8 @@ def api_share_task(user_email, task_id):
     data = request.get_json()
     if not data or 'email' not in data:
         return jsonify({'error': 'Missing email'}), 400
-    success, msg = share_task(task_id, data['email'], user_email)
+    context = data.get('context')
+    success, msg = share_task(task_id, data['email'], context, user_email)
     if success:
         return jsonify({'message': msg}), 200
     return jsonify({'error': msg}), 400
@@ -109,14 +111,31 @@ def api_revoke_share(user_email, task_id):
         return jsonify({'message': msg}), 200
     return jsonify({'error': msg}), 400
 
+@app.route('/api/tasks/<task_id>/accept', methods=['POST'])
+@token_required
+def api_accept_shared(user_email, task_id):
+    success, msg = accept_shared_task(task_id, user_email)
+    if success:
+        return jsonify({'message': msg}), 200
+    return jsonify({'error': msg}), 400
+
+@app.route('/api/tasks/<task_id>/reject', methods=['POST'])
+@token_required
+def api_reject_shared(user_email, task_id):
+    data = request.get_json() or {}
+    reason = data.get('reason')
+    success, msg = reject_shared_task(task_id, reason, user_email)
+    if success:
+        return jsonify({'message': msg}), 200
+    return jsonify({'error': msg}), 400
+
 @app.route('/api/tasks/<task_id>/comment', methods=['POST'])
 @token_required
 def api_add_comment(user_email, task_id):
     data = request.get_json()
     if not data or 'comment' not in data:
         return jsonify({'error': 'Missing comment'}), 400
-    tags = data.get('tags', [])
-    success, msg = add_comment(task_id, data['comment'], tags, user_email)
+    success, msg = add_comment(task_id, data['comment'], user_email)
     if success:
         return jsonify({'message': msg}), 200
     return jsonify({'error': msg}), 400
@@ -221,14 +240,18 @@ def ui_home():
     user_email = session.get('user_email')
     success, msg, tasks_list = list_tasks(False, user_email)
     tasks = tasks_list if success else []
-    return render_template('home.html', tasks=tasks, user_email=user_email)
+    notifications = get_notifications(user_email)
+    unread_count = sum(1 for n in notifications if not n.get('read', True))
+    return render_template('home.html', tasks=tasks, user_email=user_email, notifications=notifications, unread_count=unread_count)
 
 @app.route('/generate-report', methods=['POST'])
 @login_required
 def ui_generate_report():
     user_email = session.get('user_email')
     success, report = generate_report(user_email)
-    return render_template('report.html', report=report)
+    notifications = get_notifications(user_email)
+    unread_count = sum(1 for n in notifications if not n.get('read', True))
+    return render_template('report.html', report=report, notifications=notifications, unread_count=unread_count)
 
 @app.route('/download-report', methods=['POST'])
 @login_required
@@ -243,7 +266,9 @@ def ui_profile():
     user_email = session.get('user_email')
     user_data = get_user_by_email(user_email)
     user_name = user_data.get('name', 'N/A') if user_data else 'N/A'
-    return render_template('profile.html', user_email=user_email, user_name=user_name)
+    notifications = get_notifications(user_email)
+    unread_count = sum(1 for n in notifications if not n.get('read', True))
+    return render_template('profile.html', user_email=user_email, user_name=user_name, notifications=notifications, unread_count=unread_count)
 
 @app.route('/create-task', methods=['GET', 'POST'])
 @login_required
@@ -255,14 +280,18 @@ def ui_create_task():
         frequency = request.form.get('frequency')
         due_date = request.form.get('due_date')
         task_type = request.form.get('type', 'normal')
+        category = request.form.get('category', 'sharing')
         start_time = request.form.get('start_time') if task_type == 'live' else None
         duration = int(request.form.get('duration')) if task_type == 'live' and request.form.get('duration') else None
-        success, msg = create_task(title, description, frequency, due_date, task_type, user_email, start_time, duration)
+        success, msg = create_task(title, description, frequency, due_date, task_type, category, user_email, start_time, duration)
         if success:
             flash(msg)
             return redirect(url_for('ui_home'))
         flash(msg)
-    return render_template('create_task.html')
+    user_email = session.get('user_email')
+    notifications = get_notifications(user_email)
+    unread_count = sum(1 for n in notifications if not n.get('read', True))
+    return render_template('create_task.html', notifications=notifications, unread_count=unread_count, user_email=user_email)
 
 @app.route('/delete-task/<task_id>', methods=['POST'])
 @login_required
@@ -289,15 +318,18 @@ def ui_task_details(task_id):
     if not task:
         flash('Task not found')
         return redirect(url_for('ui_home'))
-    return render_template('task_details.html', task=task, task_id=task_id, user_email=user_email)
+    notifications = get_notifications(user_email)
+    unread_count = sum(1 for n in notifications if not n.get('read', True))
+    return render_template('task_details.html', task=task, task_id=task_id, user_email=user_email, notifications=notifications, unread_count=unread_count)
 
 @app.route('/task/<task_id>/share', methods=['POST'])
 @login_required
 def ui_share_task(task_id):
     user_email = session.get('user_email')
     share_email = request.form.get('share_email')
+    context = request.form.get('context')
     if share_email:
-        success, msg = share_task(task_id, share_email, user_email)
+        success, msg = share_task(task_id, share_email, context, user_email)
         flash(msg)
     return redirect(url_for('ui_task_details', task_id=task_id))
 
@@ -306,9 +338,8 @@ def ui_share_task(task_id):
 def ui_add_comment(task_id):
     user_email = session.get('user_email')
     comment = request.form.get('comment')
-    tags = request.form.get('tags', '').split(',')
     if comment:
-        success, msg = add_comment(task_id, comment, tags, user_email)
+        success, msg = add_comment(task_id, comment, user_email)
         flash(msg)
     return redirect(url_for('ui_task_details', task_id=task_id))
 
@@ -365,6 +396,52 @@ def ui_stop_live_home(task_id):
     success, msg = stop_live_task(task_id, user_email)
     flash(msg)
     return redirect(url_for('ui_home'))
+
+@app.route('/task/<task_id>/accept', methods=['POST'])
+@login_required
+def ui_accept_shared_task(task_id):
+    user_email = session.get('user_email')
+    success, msg = accept_shared_task(task_id, user_email)
+    flash(msg)
+    return redirect(url_for('ui_task_details', task_id=task_id))
+
+@app.route('/task/<task_id>/reject', methods=['POST'])
+@login_required
+def ui_reject_shared_task(task_id):
+    user_email = session.get('user_email')
+    reason = request.form.get('reason')
+    success, msg = reject_shared_task(task_id, reason, user_email)
+    flash(msg)
+    return redirect(url_for('ui_task_details', task_id=task_id))
+
+@app.route('/task/<task_id>/reclaim', methods=['POST'])
+@login_required
+def ui_reclaim_task(task_id):
+    user_email = session.get('user_email')
+    success, msg = reclaim_task(task_id, user_email)
+    flash(msg)
+    return redirect(url_for('ui_task_details', task_id=task_id))
+
+@app.route('/notifications', methods=['GET', 'POST'])
+@login_required
+def ui_notifications():
+    user_email = session.get('user_email')
+    if request.method == 'POST':
+        notif_id = request.form.get('notif_id')
+        if notif_id:
+            success, msg = mark_notification_read(user_email, notif_id)
+            flash(msg)
+        else:
+            # mark all
+            users = load_data(USERS_FILE)
+            if user_email in users and 'notifications' in users[user_email]:
+                for n in users[user_email]['notifications']:
+                    n['read'] = True
+                save_data(USERS_FILE, users)
+            flash('All marked read')
+        return redirect(url_for('ui_notifications'))
+    notifications = get_notifications(user_email)
+    return render_template('notifications.html', notifications=notifications, user_email=user_email)
 
 if __name__ == '__main__':
     os.makedirs('data', exist_ok=True)
